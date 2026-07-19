@@ -1,22 +1,21 @@
-# 🚀 Caching Proxy Server
+# Caching Proxy Server
 
-A lightweight CLI-based HTTP caching proxy server built with **Node.js**, **Express**, and **Redis**. The proxy forwards incoming requests to an origin server, caches successful responses in Redis, and serves cached data for subsequent requests to improve response time and reduce unnecessary network traffic.And this project from [roadmap.sh](https://roadmap.sh/projects/caching-server)
+A simple HTTP caching proxy server built with Node.js, Express, and Redis.
 
----
+The server sits between a client and an API. When a request comes in, it first checks whether the response is already stored in Redis. If it is, the cached response is returned immediately. Otherwise, the request is forwarded to the origin server, the response is cached, and then sent back to the client.
 
-## ✨ Features
+This project was built to better understand how proxy servers and caching work in backend applications.
 
-- Forward HTTP requests to any origin server
-- Cache responses using Redis
-- Return cached responses when available
-- Configurable cache expiration (15 minutes)
-- Cache status via `X-Cache` response header
+## Features
+
+- Forward requests to any origin server
+- Cache responses with Redis
+- Return cached responses for repeated requests
+- Show whether a response came from the cache using the `X-Cache` header
 - Clear all cached data from the command line
-- Simple CLI interface using Commander
+- Simple CLI for starting the server
 
----
-
-## 🛠 Tech Stack
+## Technologies
 
 - Node.js
 - Express.js
@@ -25,28 +24,9 @@ A lightweight CLI-based HTTP caching proxy server built with **Node.js**, **Expr
 - Axios
 - Commander
 
----
+## Getting Started
 
-## 📂 Project Structure
-
-```
-.
-├── src
-│   ├── index.js          # CLI entry point
-│   ├── server.js         # Express proxy server
-│   ├── redis.js          # Redis configuration
-│   └── services
-│       └── axios.js
-├── api.http
-├── package.json
-└── README.md
-```
-
----
-
-## 📦 Installation
-
-Clone the repository
+Clone the repository.
 
 ```bash
 git clone https://github.com/Doni-githu/caching-proxy-server.git
@@ -54,79 +34,75 @@ git clone https://github.com/Doni-githu/caching-proxy-server.git
 cd caching-proxy-server
 ```
 
-Install dependencies
+Install the dependencies.
 
 ```bash
 npm install
 ```
 
-Make sure Redis is running locally.
+Before running the project, make sure Redis is installed and running on your machine.
 
-Default Redis connection:
+## Running the Server
 
-```
-localhost:6379
-```
-
----
-
-## 🚀 Usage
-
-Start the proxy server
+Start the proxy server by providing a port and the origin server.
 
 ```bash
 proxy --port 3000 --origin https://dummyjson.com
 ```
 
-or
+Or run it directly with Node.js.
 
 ```bash
 node src/index.js --port 3000 --origin https://dummyjson.com
 ```
 
-The proxy server will start on
+The proxy server will start on:
 
 ```
 http://localhost:3000
 ```
 
----
+## Example
 
-## 📖 Example
-
-Request
+Suppose the origin server is:
 
 ```
+https://dummyjson.com
+```
+
+Making this request:
+
+```http
 GET http://localhost:3000/products
 ```
 
-The proxy forwards the request to
+will forward the request to:
 
-```
-https://dummyjson.com/products
+```http
+GET https://dummyjson.com/products
 ```
 
 ### First Request
+
+The response comes from the origin server and is stored in Redis.
 
 ```
 X-Cache: MISS
 ```
 
-The response is fetched from the origin server and stored in Redis.
-
 ### Second Request
+
+The same response is returned directly from Redis.
 
 ```
 X-Cache: HIT
 ```
 
-The cached response is returned directly from Redis.
+This avoids sending another request to the origin server and makes the response faster.
 
----
+## Clearing the Cache
 
-## 🧹 Clear Cache
-
-Clear all cached responses
+To remove all cached responses, run:
 
 ```bash
 proxy clear
@@ -138,67 +114,43 @@ or
 node src/index.js clear
 ```
 
-Output
+## Cache Duration
+
+Responses are stored in Redis for **15 minutes**. Once they expire, the next request fetches fresh data from the origin server and stores it again.
+
+## Project Structure
 
 ```
-Cache cleaned
+src/
+├── index.js          # CLI entry point
+├── server.js         # Express proxy server
+├── redis.js          # Redis configuration
+└── services/
+    └── axios.js      # Handles requests to the origin server
 ```
 
----
+## What I Learned
 
-## ⏱ Cache Expiration
+While building this project, I learned how to:
 
-Responses are cached for **15 minutes**.
+- Build a reverse proxy server with Express
+- Store and retrieve cached responses using Redis
+- Create a command-line application with Commander
+- Forward HTTP requests with Axios
+- Improve application performance by reducing unnecessary API calls
 
-```javascript
-redis.setex(url, 60 * 15, JSON.stringify(data))
-```
+## Possible Improvements
 
-After expiration, the next request fetches fresh data from the origin server.
+There are several features that could be added in the future:
 
----
+- Support more HTTP methods such as POST, PUT, and DELETE
+- Allow the cache expiration time to be configured
+- Add request logging
+- Docker support
+- Unit and integration tests
+- Rewrite the project in TypeScript
+- Better error handling
 
-## 📡 Response Headers
+## License
 
-| Header | Meaning |
-|---------|---------|
-| X-Cache: HIT | Response served from Redis cache |
-| X-Cache: MISS | Response fetched from the origin server |
-
----
-
-## 💻 Example Commands
-
-Start proxy
-
-```bash
-proxy --port 3000 --origin https://dummyjson.com
-```
-
-Fetch data
-
-```http
-GET http://localhost:3000/products
-```
-
-Clear cache
-
-```bash
-proxy clear
-```
-
----
-
-## 🎯 Learning Objectives
-
-This project demonstrates:
-
-- Reverse Proxy implementation
-- Redis caching
-- Express middleware
-- HTTP request forwarding
-- CLI application development
-- REST API communication
-- Performance optimization through caching
-
----
+This project is available under the MIT License.
